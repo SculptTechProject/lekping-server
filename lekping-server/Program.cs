@@ -1,17 +1,18 @@
 using lekping.server.Domain.Entities;
 using lekping.server.Features.Auth;
+using lekping.server.Features.Meds.Services;
+using lekping.server.Features.Push.Service;
 using lekping.server.Infrastructure.Persistence;
 using lekping.server.Options;
 using LekPing.Server.Features.Auth;
-using lekping.server.Features.Meds.Services;
-using System.Text.Json.Serialization;
-
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using System.Text;
+using System.Text.Json.Serialization;
+using static lekping.server.Features.Push.Service.PushService;
 
 const string CorsPolicyName = "FrontendDev";
 
@@ -24,6 +25,11 @@ builder.Services.AddHealthChecks();
 
 // Meds
 builder.Services.AddScoped<IMedsService, MedsService>();
+
+// Push Notifications
+builder.Services.Configure<VapidOptions>(
+    builder.Configuration.GetSection("Vapid"));
+builder.Services.AddScoped<PushService>();
 
 // Db + Identity hasher
 builder.Services.AddDbContext<AppDbContext>(o =>
