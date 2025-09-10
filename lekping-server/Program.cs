@@ -3,6 +3,9 @@ using lekping.server.Features.Auth;
 using lekping.server.Infrastructure.Persistence;
 using lekping.server.Options;
 using LekPing.Server.Features.Auth;
+using lekping.server.Features.Meds.Services;
+using System.Text.Json.Serialization;
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +22,9 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddHealthChecks();
 
+// Meds
+builder.Services.AddScoped<IMedsService, MedsService>();
+
 // Db + Identity hasher
 builder.Services.AddDbContext<AppDbContext>(o =>
     o.UseSqlite(builder.Configuration.GetConnectionString("db") ?? "Data Source=app.db"));
@@ -31,6 +37,11 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 
 var jwt = builder.Configuration.GetSection("Jwt").Get<JwtOptions>()
           ?? throw new InvalidOperationException("Missing Jwt config");
+
+// JSON + Enum as string
+builder.Services.AddControllers()
+    .AddJsonOptions(o =>
+        o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
 // AuthN + AuthZ
 builder.Services

@@ -6,6 +6,7 @@ namespace lekping.server.Infrastructure.Persistence
     public class AppDbContext : DbContext
     {
         public DbSet<User> Users => Set<User>();
+        public DbSet<Med> Meds => Set<Med>();
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
@@ -22,6 +23,8 @@ namespace lekping.server.Infrastructure.Persistence
                 entity.Property(e => e.Role).IsRequired().HasMaxLength(256);
                 entity.Property(e => e.CreatedAt).IsRequired();
             });
+
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
         }
     }
 }
