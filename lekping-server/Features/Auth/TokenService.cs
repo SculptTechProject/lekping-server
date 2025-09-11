@@ -35,8 +35,6 @@ namespace lekping.server.Features.Auth
             var nbf = now.AddSeconds(-5);
             var exp = now.AddMinutes(Math.Max(1, _opt.ExpireMinutes));
 
-            Console.WriteLine($"JWT: now={now:o} exp={exp:o} minutes={_opt.ExpireMinutes}");
-
             var claims = new List<Claim>
             {
             new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
