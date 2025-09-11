@@ -23,6 +23,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Features\Intakes\Dtos\" />
+    <Folder Include="Features\Intakes\Mapping\" />
+    <Folder Include="Features\Intakes\Services\" />
+    <Folder Include="Features\Intakes\Persistence\" />
+    <Folder Include="Features\Schedules\Dtos\" />
+    <Folder Include="Features\Schedules\Mapping\" />
+    <Folder Include="Features\Schedules\Persistence\" />
+    <Folder Include="Features\Schedules\Services\" />
     <Folder Include="Migrations\" />
   </ItemGroup>
 

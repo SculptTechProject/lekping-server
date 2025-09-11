@@ -1,6 +1,5 @@
 ﻿using lekping.server.Domain.Entities;
 using lekping.server.Options;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;

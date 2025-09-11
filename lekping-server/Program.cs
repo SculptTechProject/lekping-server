@@ -13,7 +13,6 @@ using Scalar.AspNetCore;
 using System.Text;
 using System.Text.Json.Serialization;
 using static lekping.server.Features.Push.Service.PushService;
-using Npgsql;
 
 const string CorsPolicyName = "FrontendDev";
 
@@ -136,3 +135,8 @@ app.MapControllers();
 
 // Run
 app.Run();
+
+namespace lekping.server
+{
+    public partial class Program { }
+}
