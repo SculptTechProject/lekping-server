@@ -10,50 +10,81 @@ namespace lekping.server.Features.Meds.Services
         private readonly AppDbContext _db;
         public MedsService(AppDbContext db) => _db = db;
 
-        public async Task<MedDto> CreateAsync(CreateMedRequest req, CancellationToken ct)
+        public async Task<IReadOnlyList<MedDto>> GetAllAsync(Guid userId, int skip, int take, CancellationToken ct)
+        {
+            return await _db.Meds.AsNoTracking()
+                .Where(m => m.UserId == userId)
+                .OrderBy(m => m.BrandName)
+                .Skip(skip).Take(take)
+                .Select(m => m.ToDto())
+                .ToListAsync(ct);
+        }
+
+        public async Task<MedDto?> FindAsync(Guid userId, Guid id, CancellationToken ct)
+        {
+            return await _db.Meds.AsNoTracking()
+                .Where(m => m.UserId == userId && m.Id == id)
+                .Select(m => m.ToDto())
+                .SingleOrDefaultAsync(ct);
+        }
+
+        public async Task<MedDto> CreateAsync(Guid userId, CreateMedRequest req, CancellationToken ct)
         {
             var e = new Domain.Entities.Med(
+                userId,
                 req.BrandName, req.GenericName,
                 req.StrengthValue, req.StrengthUnit,
                 req.Form, req.PackageSize, req.Ean
             );
+
             _db.Meds.Add(e);
-            await _db.SaveChangesAsync(ct);
+
+            try
+            {
+                await _db.SaveChangesAsync(ct);
+            }
+            catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("unique", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                throw new InvalidOperationException("Taki lek już istnieje w Twojej liście.", ex);
+            }
+
             return e.ToDto();
         }
 
-        public async Task<bool> DeleteAsync(Guid id, CancellationToken ct)
+        public async Task<MedDto?> UpdateAsync(Guid userId, UpdateMedRequest req, CancellationToken ct)
         {
-            var e = await _db.Meds.FindAsync(new object?[] { id }, ct);
-            if (e is null) return false;
-            _db.Meds.Remove(e);
-            await _db.SaveChangesAsync(ct);
-            return true;
-        }
-
-        public async Task<IReadOnlyList<MedDto>> GetAllAsync(int skip, int take, CancellationToken ct)
-            => await _db.Meds.AsNoTracking()
-                .OrderBy(x => x.BrandName)
-                .Skip(skip).Take(take)
-                .Select(x => x.ToDto())
-                .ToListAsync(ct);
-
-        public async Task<MedDto?> FindAsync(Guid id, CancellationToken ct)
-            => await _db.Meds.AsNoTracking()
-                .Where(x => x.Id == id)
-                .Select(x => x.ToDto())
+            var e = await _db.Meds
+                .Where(m => m.UserId == userId && m.Id == req.Id)
                 .SingleOrDefaultAsync(ct);
 
-        public async Task<MedDto?> UpdateAsync(UpdateMedRequest req, CancellationToken ct)
-        {
-            var e = await _db.Meds.FindAsync(new object?[] { req.Id }, ct);
             if (e is null) return null;
 
             e.Update(req.BrandName, req.GenericName, req.StrengthValue,
                      req.StrengthUnit, req.Form, req.PackageSize, req.Ean);
 
-            await _db.SaveChangesAsync(ct);
+            try
+            {
+                await _db.SaveChangesAsync(ct);
+            }
+            catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("unique", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                throw new InvalidOperationException("Konflikt: duplikat leku w Twojej liście.", ex);
+            }
+
             return e.ToDto();
+        }
+
+        public async Task<bool> DeleteAsync(Guid userId, Guid id, CancellationToken ct)
+        {
+            var e = await _db.Meds
+                .Where(m => m.UserId == userId && m.Id == id)
+                .SingleOrDefaultAsync(ct);
+
+            if (e is null) return false;
+
+            _db.Meds.Remove(e);
+            await _db.SaveChangesAsync(ct);
+            return true;
         }
     }
 }

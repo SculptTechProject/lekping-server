@@ -1,5 +1,6 @@
 ﻿using lekping.server.Domain.Entities;
 using lekping.server.Options;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -12,6 +13,14 @@ namespace lekping.server.Features.Auth
     {
         private readonly JwtOptions _opt;
         private readonly SigningCredentials _creds;
+
+        private static IEnumerable<Claim> RoleClaims(User user)
+        {
+            if (user?.Roles == null) yield break;
+            foreach (var role in user.Roles)
+                if (!string.IsNullOrWhiteSpace(role))
+                    yield return new Claim(ClaimTypes.Role, role);
+        }
 
         public TokenService(IOptions<JwtOptions> opt)
         {
@@ -26,14 +35,17 @@ namespace lekping.server.Features.Auth
             var nbf = now.AddSeconds(-5);
             var exp = now.AddMinutes(Math.Max(1, _opt.ExpireMinutes));
 
-            var claims = new[]
+            Console.WriteLine($"JWT: now={now:o} exp={exp:o} minutes={_opt.ExpireMinutes}");
+
+            var claims = new List<Claim>
             {
             new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new Claim(JwtRegisteredClaimNames.Email, user.Email),
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Name, user.Email),
-            new Claim(ClaimTypes.Role, user.Role)
         };
+
+            claims.AddRange(RoleClaims(user));
 
             var jwt = new JwtSecurityToken(
                 issuer: _opt.Issuer,

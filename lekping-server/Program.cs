@@ -1,4 +1,4 @@
-using lekping.server.Domain.Entities;
+Ôªøusing lekping.server.Domain.Entities;
 using lekping.server.Features.Auth;
 using lekping.server.Features.Meds.Services;
 using lekping.server.Features.Push.Service;
@@ -13,6 +13,7 @@ using Scalar.AspNetCore;
 using System.Text;
 using System.Text.Json.Serialization;
 using static lekping.server.Features.Push.Service.PushService;
+using Npgsql;
 
 const string CorsPolicyName = "FrontendDev";
 
@@ -32,8 +33,15 @@ builder.Services.Configure<VapidOptions>(
 builder.Services.AddScoped<PushService>();
 
 // Db + Identity hasher
-builder.Services.AddDbContext<AppDbContext>(o =>
-    o.UseSqlite(builder.Configuration.GetConnectionString("db") ?? "Data Source=app.db"));
+var cs = builder.Configuration.GetConnectionString("Default");
+
+// sanity log bez has≈Ça
+var safe = new Npgsql.NpgsqlConnectionStringBuilder(cs) { Password = "***" }.ToString();
+Console.WriteLine($"[DB] {safe}");
+
+builder.Services.AddDbContext<AppDbContext>(opt => opt.UseNpgsql(cs));
+
+
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 // JWT Authentication
@@ -81,7 +89,7 @@ var app = builder.Build();
 // Pipeline
 if (app.Environment.IsDevelopment())
 {
-    // MAPUJEMY DOK£ADNIE RAZ (jawny wzorzec úcieøki)
+    // MAPUJEMY DOK≈ÅADNIE RAZ (jawny wzorzec ≈õcie≈ºki)
     app.MapOpenApi("/openapi/v1.json");
 
     // Scalar pod /scalar, czyta z /openapi/v1.json
@@ -94,6 +102,23 @@ if (app.Environment.IsDevelopment())
 else
 {
     app.UseHttpsRedirection();
+}
+
+// Sanity check
+using (var scope = app.Services.CreateScope())
+{
+    try
+    {
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        await db.Database.OpenConnectionAsync();
+        await db.Database.CloseConnectionAsync();
+        Console.WriteLine("[DB] Connection OK");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("[DB] Connection FAILED: " + ex.Message);
+        throw;
+    }
 }
 
 app.UseCors(CorsPolicyName);
