@@ -10,6 +10,7 @@ namespace lekping.server.Domain.Entities
 
         public decimal DoseValue { get; private set; }
         public string DoseUnit { get; private set; } = "tab";
+        public string? Note { get; private set; }
 
         public string Timezone { get; private set; } = "Europe/Warsaw";
         public DateOnly StartDate { get; private set; }
