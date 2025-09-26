@@ -23,6 +23,20 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddHealthChecks();
 
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+    .AddEnvironmentVariables();
+
+builder.Services.AddOptions<JwtOptions>()
+    .Bind(builder.Configuration.GetSection("Jwt"))
+    .Validate(o => !string.IsNullOrWhiteSpace(o.Key), "Jwt:Key is required")
+    .ValidateOnStart();
+
+builder.Services.AddOptions<VapidOptions>()
+    .Bind(builder.Configuration.GetSection("Vapid"))
+    .ValidateOnStart();
+
 // Meds
 builder.Services.AddScoped<IMedsService, MedsService>();
 
