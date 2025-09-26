@@ -18,13 +18,13 @@ namespace lekping.server.Features.Meds.Persistence
             b.Property(x => x.PackageSize).IsRequired();
             b.Property(x => x.CreatedAt).IsRequired();
 
-            // relacja z User
+            // relation with User
             b.HasOne(m => m.User)
              .WithMany(u => u.Meds)
              .HasForeignKey(m => m.UserId)
              .OnDelete(DeleteBehavior.Cascade);
 
-            // indeksy
+            // index
             b.HasIndex(m => new { m.UserId, m.Ean }).IsUnique();
             b.HasIndex(m => new { m.UserId, m.BrandName, m.StrengthValue, m.StrengthUnit, m.Form, m.PackageSize }).IsUnique();
         }

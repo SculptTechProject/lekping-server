@@ -46,14 +46,14 @@ namespace lekping.server.Controllers
         [HttpPost("test")]
         public async Task<IActionResult> Test([FromBody] TestPushRequest? req, CancellationToken ct)
         {
-            // jeżeli user nie ma subskrypcji – zwróć 404, żeby było jasne czemu nie dochodzi
+            // if user has no subscriptions, return 404
             if (!await _push.AnyForUserAsync(UserId, ct))
                 return NotFound(new { message = "No push subscriptions for current user." });
 
             var payload = new
             {
                 title = req?.Title ?? "LekPing — test",
-                body = req?.Body ?? "Działa! 🎉 (to tylko testowe powiadomienie)",
+                body = req?.Body ?? "Works! 🎉 (only test notification)",
                 url = req?.Url ?? $"{Request.Scheme}://{Request.Host}/meds"
             };
 

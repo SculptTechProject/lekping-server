@@ -12,7 +12,6 @@ namespace lekping.server.Features.Schedules.Dtos
         DateOnly StartDate,
         DateOnly? EndDate,
         Repeat Repeat,
-        // rozbijam w DTO na tablicę
         string[] Times,
         int DaysOfWeekMask,
         int RemindBeforeMinutes,

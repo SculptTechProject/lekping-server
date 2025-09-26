@@ -2,8 +2,8 @@
 using Microsoft.Extensions.Options;
 using WebPush;
 
-using ClientPushSubscription = WebPush.PushSubscription;                 // do wysyłki (WebPush)
-using DbPushSubscription = lekping.server.Domain.Entities.PushSubscription; // do EF/DB
+using ClientPushSubscription = WebPush.PushSubscription; // to send (WebPush)
+using DbPushSubscription = lekping.server.Domain.Entities.PushSubscription; // for EF/DB
 using lekping.server.Infrastructure.Persistence;
 
 namespace lekping.server.Features.Push.Service
@@ -65,7 +65,7 @@ namespace lekping.server.Features.Push.Service
                     ex.StatusCode == System.Net.HttpStatusCode.Gone ||
                     ex.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
-                    // martwy endpoint – czyścimy
+                    // dead subscription, remove it
                     _db.PushSubscriptions.Remove(s);
                 }
             }

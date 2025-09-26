@@ -45,7 +45,7 @@ namespace lekping.server.Features.Meds.Services
             }
             catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("unique", StringComparison.OrdinalIgnoreCase) == true)
             {
-                throw new InvalidOperationException("Taki lek już istnieje w Twojej liście.", ex);
+                throw new InvalidOperationException("This drug already exists on your list.", ex);
             }
 
             return e.ToDto();
@@ -68,7 +68,7 @@ namespace lekping.server.Features.Meds.Services
             }
             catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("unique", StringComparison.OrdinalIgnoreCase) == true)
             {
-                throw new InvalidOperationException("Konflikt: duplikat leku w Twojej liście.", ex);
+                throw new InvalidOperationException("Conflict: Duplicate drug in your list.", ex);
             }
 
             return e.ToDto();

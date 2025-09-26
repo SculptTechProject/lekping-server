@@ -42,10 +42,10 @@ namespace lekping.server.Infrastructure.Persistence
                  .HasColumnType("timestamptz")
                  .IsRequired();
 
-                // Nie chcemy duplikatów dla tego samego usera i endpointu
+                // We don't want duplicates for the same user and endpoint
                 e.HasIndex(x => new { x.UserId, x.Endpoint }).IsUnique();
 
-                // K do User
+                // K to User
                 e.HasOne<User>()
                  .WithMany()
                  .HasForeignKey(x => x.UserId)
@@ -73,11 +73,11 @@ namespace lekping.server.Infrastructure.Persistence
                  .HasColumnType("timestamptz")
                  .IsRequired();
 
-                // unikalność „tego samego leku” u JEDNEGO usera
+                // uniqueness of the "same drug" in ONE user
                 e.HasIndex(x => new { x.UserId, x.BrandName, x.StrengthValue, x.StrengthUnit, x.Form, x.PackageSize })
                  .IsUnique();
 
-                // EAN bywa unikatowy – ale „per user”:
+                // EAN can be unique – but “per user”:
                 e.HasIndex(x => new { x.UserId, x.Ean }).IsUnique();
             });
 

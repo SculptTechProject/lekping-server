@@ -22,7 +22,7 @@ public sealed class AuthService : IAuthService
         var user = new User(e);
         user.SetName(Name);
         user.SetPasswordHash(_hasher.HashPassword(user, password));
-        // opcjonalnie: user.SetRole("User");
+        // optional: user.SetRole("User");
         _db.Users.Add(user);
         await _db.SaveChangesAsync(ct);
         return user;
